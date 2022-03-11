@@ -54,9 +54,9 @@ impl Cli {
 
         self.block_until_ready(&container_id, image.ready_conditions());
 
-        let client = Cli {
+        let client = Box::new(Cli {
             inner: self.inner.clone(),
-        };
+        });
 
         let container = Container::new(container_id, client, image, self.inner.command);
 

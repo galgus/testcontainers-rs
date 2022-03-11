@@ -27,7 +27,7 @@ use std::{fmt, marker::PhantomData, net::IpAddr, str::FromStr};
 /// [drop_impl]: struct.Container.html#impl-Drop
 pub struct Container<'d, I: Image> {
     id: String,
-    docker_client: Box<dyn Docker>,
+    docker_client: Box<dyn Docker + Send>,
     image: RunnableImage<I>,
     command: Command,
     ports: Ports,
@@ -59,14 +59,14 @@ where
     /// [`wait_until_ready`]: trait.Image.html#tymethod.wait_until_ready
     pub(crate) fn new(
         id: String,
-        docker_client: impl Docker + 'static,
+        docker_client: Box<dyn Docker + Send>,
         image: RunnableImage<I>,
         command: Command,
     ) -> Self {
         let ports = docker_client.ports(&id);
         Self {
             id,
-            docker_client: Box::new(docker_client),
+            docker_client,
             image,
             command,
             ports,
