@@ -144,6 +144,7 @@ pub struct RunnableImage<I: Image> {
     env_vars: BTreeMap<String, String>,
     volumes: BTreeMap<String, String>,
     ports: Option<Vec<Port>>,
+    mac_address: Option<String>,
 }
 
 impl<I: Image> RunnableImage<I> {
@@ -163,6 +164,10 @@ impl<I: Image> RunnableImage<I> {
         &self.container_name
     }
 
+    pub fn mac_address(&self) -> &Option<String> {
+        &self.mac_address
+    }
+    
     pub fn env_vars(&self) -> Box<dyn Iterator<Item = (&String, &String)> + '_> {
         Box::new(self.image.env_vars().chain(self.env_vars.iter()))
     }
@@ -224,6 +229,13 @@ impl<I: Image> RunnableImage<I> {
         }
     }
 
+    pub fn with_mac_address(self, mac_address: impl Into<String>) -> Self {
+        Self {
+            mac_address: Some(mac_address.into()),
+            ..self
+        }
+    }
+
     pub fn with_env_var(self, (key, value): (impl Into<String>, impl Into<String>)) -> Self {
         let mut env_vars = self.env_vars;
         env_vars.insert(key.into(), value.into());
@@ -268,6 +280,7 @@ impl<I: Image> From<(I, I::Args)> for RunnableImage<I> {
             env_vars: BTreeMap::default(),
             volumes: BTreeMap::default(),
             ports: None,
+            mac_address: None,
         }
     }
 }

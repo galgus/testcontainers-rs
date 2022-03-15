@@ -137,6 +137,10 @@ impl Client {
     fn build_run_command<I: Image>(image: &RunnableImage<I>, mut command: Command) -> Command {
         command.arg("run");
 
+        if let Some(mac_address) = image.mac_address() {
+            command.arg("--mac-address").arg(format!("{}", mac_address));
+        }
+
         if let Some(network) = image.network() {
             command.arg(format!("--network={}", network));
         }
